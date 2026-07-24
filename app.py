@@ -1,3 +1,4 @@
+import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask import Flask,render_template,request, redirect
@@ -6,8 +7,22 @@ from models import db, InfoModel
 from flask import Flask
  
 app = Flask(__name__)
- 
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:@localhost:5432/flaskdemodb"
+
+
+# our database uri
+if 'RDS_DB_NAME' in os.environ:
+    app.config['SQLALCHEMY_DATABASE_URI'] = \
+        'postgresql://{username}:{password}@{host}:{port}/{database}'.format(
+        username=os.environ['RDS_USERNAME'],
+        password=os.environ['RDS_PASSWORD'],
+        host=os.environ['RDS_HOSTNAME'],
+        port=os.environ['RDS_PORT'],
+        database=os.environ['RDS_DB_NAME'],
+    )
+else:
+    # our database uri
+    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://postgres:@localhost:5432/flaskdemodb"
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
  
 db.init_app(app)
